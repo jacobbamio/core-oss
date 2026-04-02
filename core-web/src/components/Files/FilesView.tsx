@@ -1724,7 +1724,7 @@ export default function FilesView() {
     }
   };
 
-  const handleCreateNote = async () => {
+  const handleCreateNote = async (folderId?: string) => {
     setIsCreatingNote(true);
     isCreatingNoteRef.current = true;
 
@@ -1734,7 +1734,7 @@ export default function FilesView() {
     setShouldFocusTitle(true);
 
     try {
-      const newNote = await addNote(currentFolderId);
+      const newNote = await addNote(folderId ?? currentFolderId);
       if (newNote) {
         // Update ref so subsequent loads work correctly
         lastLoadedNoteIdRef.current = newNote.id;
@@ -2235,6 +2235,18 @@ export default function FilesView() {
                                           onClose={() => setOpenItemMenuId(null)}
                                           trigger={{ current: itemMenuRefs.current.get(item.id) || null }}
                                         >
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setOpenItemMenuId(null);
+                                              handleCreateNote(item.id);
+                                            }}
+                                            disabled={isCreatingNote}
+                                            className="w-full px-3 py-1.5 text-left text-sm text-text-body hover:bg-bg-gray flex items-center gap-2 disabled:opacity-50"
+                                          >
+                                            <Icon icon={Plus} size={14} />
+                                            New Note
+                                          </button>
                                           <button
                                             onClick={(e) => { e.stopPropagation(); handleRenameItem(item); }}
                                             className="w-full px-3 py-1.5 text-left text-sm text-text-body hover:bg-bg-gray flex items-center gap-2"
@@ -2813,7 +2825,7 @@ export default function FilesView() {
                       Select a note or create a new one
                     </p>
                     <button
-                      onClick={handleCreateNote}
+                      onClick={() => handleCreateNote()}
                       disabled={isCreatingNote}
                       className="mt-4 flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-light bg-brand-primary hover:opacity-90 rounded-lg transition-opacity disabled:opacity-50 mx-auto"
                     >

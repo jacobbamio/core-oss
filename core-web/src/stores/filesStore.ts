@@ -565,14 +565,9 @@ export const useFilesStore = create<FilesState>()(
     const key = folderKey(parentId);
 
     // Add optimistic note to store immediately
-    // Also add to root cache so it appears in "All" view instantly
     set((state) => {
       const updated = { ...state.documentsByFolder };
       updated[key] = [optimisticNote, ...(updated[key] || [])];
-      // If creating in a subfolder, also add to root so "All" view updates immediately
-      if (parentId && updated[ROOT_KEY]) {
-        updated[ROOT_KEY] = [optimisticNote, ...updated[ROOT_KEY]];
-      }
       return {
         documentsByFolder: updated,
         selectedNoteId: tempId,
@@ -596,12 +591,6 @@ export const useFilesStore = create<FilesState>()(
         updated[key] = updated[key].map(d =>
           d.id === tempId ? realNote : d
         );
-        // Also update in root cache if it exists there
-        if (parentId && updated[ROOT_KEY]) {
-          updated[ROOT_KEY] = updated[ROOT_KEY].map(d =>
-            d.id === tempId ? realNote : d
-          );
-        }
         return {
           documentsByFolder: updated,
           // Update selectedNoteId if it was the temp note
@@ -614,10 +603,6 @@ export const useFilesStore = create<FilesState>()(
       set((state) => {
         const updated = { ...state.documentsByFolder };
         updated[key] = updated[key].filter(d => d.id !== tempId);
-        // Also remove from root cache if it was added there
-        if (parentId && updated[ROOT_KEY]) {
-          updated[ROOT_KEY] = updated[ROOT_KEY].filter(d => d.id !== tempId);
-        }
         return {
           documentsByFolder: updated,
           selectedNoteId: state.selectedNoteId === tempId ? null : state.selectedNoteId,
